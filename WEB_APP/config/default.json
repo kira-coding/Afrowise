@@ -1,0 +1,5 @@
+{
+    "name":"Afro Wise",
+    "db":"mongodb://localhost/Afrowise",
+    "JWT-secret-key":"12345"
+}

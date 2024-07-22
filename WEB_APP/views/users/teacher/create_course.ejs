@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta
+      name="author"
+      content="Mark Otto, Jacob Thornton, and Bootstrap contributors"
+    />
+    <meta name="generator" content="Hugo 0.72.0" />
+    <title>Teachers Dashboard</title>
+
+    <link rel="stylesheet" href="/boot/css/bootstrap.css" />
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      body {
+        font-size: 0.875rem;
+      }
+
+      .feather {
+        width: 16px;
+        height: 16px;
+        vertical-align: text-bottom;
+      }
+
+      /* Sidebar*/
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        /* Behind the navbar */
+        padding: 48px 0 0;
+        /* Height of navbar */
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+      }
+
+      @media (max-width: 767.98px) {
+        .sidebar {
+          top: 5rem;
+        }
+      }
+
+      .sidebar-sticky {
+        position: relative;
+        top: 0;
+        height: calc(100vh - 48px);
+        padding-top: 0.5rem;
+        overflow-x: hidden;
+        overflow-y: auto;
+        /* Scrollable contents if viewport is shorter than content. */
+      }
+
+      .sidebar .nav-link {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .sidebar .nav-link .feather {
+        margin-right: 4px;
+        color: #727272;
+      }
+
+      .sidebar .nav-link.active {
+        color: #007bff;
+      }
+
+      .sidebar .nav-link:hover .feather,
+      .sidebar .nav-link.active .feather {
+        color: inherit;
+      }
+
+      .sidebar-heading {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+      }
+
+      /*Navbar*/
+      .navbar-brand {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        font-size: 1rem;
+        background-color: rgba(0, 0, 0, 0.25);
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
+      }
+
+      .navbar .navbar-toggler {
+        top: 0.25rem;
+        right: 1rem;
+      }
+
+      .navbar .form-control {
+        padding: 0.75rem 1rem;
+        border-width: 0;
+        border-radius: 0;
+      }
+
+      .form-control-dark {
+        color: #fff;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .form-control-dark:focus {
+        border-color: transparent;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+      }
+      .dashboard {
+        padding-left: 15rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav
+      class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow"
+    >
+      <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/">Afro wise</a>
+
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          <a class="nav-link" href="/user/teacher/logout">Log out</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <nav
+          id="sidebarMenu"
+          class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse"
+        >
+          <div class="position-sticky pt-3">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="#">
+                  <span data-feather="home"></span>
+                  Dashboard
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/user/teacher/courses">
+                  <span data-feather="file"></span>
+                  Course <small class="text-dark">/ create</small>
+                </a>
+              </li>
+
+              <h6
+                class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted"
+              >
+                <span>Account</span>
+                <a
+                  class="link-secondary"
+                  href="#"
+                  aria-label="Add a new report"
+                >
+                  <span data-feather="plus-circle"></span>
+                </a>
+              </h6>
+
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Settings
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+          <div class="dashboard row">
+            <h1 class="h2 col">Create Couse</h1>
+
+            <hr />
+          </div>
+          <form
+            action="/api/courses/course"
+            method="post"
+            style="padding-left: 40%"id="form" 
+
+          >
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input
+                type="text"
+                class="form-control form-control-lg"
+                name="title"
+                id="title"
+                aria-describedby="the title of the course"
+                placeholder="course title"
+                required
+              />
+              <small id="the title of the course" class="form-text text-muted"
+                >What do you want to call this course</small
+              >
+            </div>
+            <div class="mb-3">
+              <label for="Discription" class="form-label">Discription</label>
+              <textarea
+                class="form-control"
+                name="discription"
+                id="Discription"
+                rows="5"
+                required
+              ></textarea>
+            </div>
+            <!-- <div class="mb-3">
+              <label for="picture" class="form-label">Course picture</label>
+              <input
+                type="file"
+                class="form-control"
+                name="picture"
+                id="picture"
+                placeholder="please selecting cover image "
+                aria-describedby="cover"
+                required
+              />
+              <div id="cover" class="form-text">select course image</div>
+            </div> -->
+
+
+            <div class="row">
+              <div class="form-group col-md-3">
+                <label for="price">price</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  name="price"
+                  id="price"
+                  aria-describedby="price"
+                  placeholder="price"
+                  required
+                />
+                <small id="price" class="form-text text-muted"
+                  >Price of the course</small
+                >
+              </div>
+              <button type="submit" class="btn btn-info col-md-6">
+                create
+              </button>
+            </div>
+          </form>
+        </main>
+      </div>
+    </div>
+    <script src="/js/jquery-3.6.3.min.js"></script>
+    <script src="/boot/js/bootstrap.bundle.js"></script>
+    <script>
+      // var data = new FormData();
+      // const form =$('#form')
+      // form.on('submit',(e) => {
+      //   e.preventDefault();
+        
+
+      //   const url = "/api/courses/course";
+
+      //   let picture = $("input[id^='picture']")[0].files[0];
+      //   data.append("picture", picture);
+
+      //   $.ajax({
+      //     method: "POST",
+      //     url: url,
+      //     processData: false,
+      //     contentType: false,
+      //     mimeType: "multipart/form-data",
+      //     data: data,
+      //     success: function (res) {},
+      //   });
+      // });
+    </script>
+  </body>
+</html>

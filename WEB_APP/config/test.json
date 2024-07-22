@@ -1,0 +1,5 @@
+{
+    "name":"Afro Wise -Test",
+    "db":"mongodb://localhost/Afrowise_tests"
+    
+}

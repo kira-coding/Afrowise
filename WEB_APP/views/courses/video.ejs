@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
+    <meta name="generator" content="Hugo 0.72.0" />
+    <title>Teachers Dashboard</title>
+
+    <link rel="stylesheet" href="/boot/css/bootstrap.css" />
+
+
+
+</head>
+
+<body>
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/">Afro wise</a>
+
+
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="/user/teacher/logout">Log out</a>
+            </li>
+        </ul>
+
+    </nav>
+
+    <div class="container-fluid">
+
+
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+
+            <d class="dashboard">
+                <div class="row ">
+                    <div class="col-md-6">
+                        <div class="input-group ">
+                            <span class="span" for="name">
+                                <h2>
+                                    <%=document.name%>
+                                </h2>
+                            </span> <input type="text" name="name" id="name" class="form-control h2 col-md-3"
+                                value="<%=section.name%>" />
+                        </div>
+                    </div>
+                    <a class="btn btn-primary col-md-3 btn-sm" href="/api/courses/document/<%=document._id%>">
+                        back</a>
+                        <hr>
+                </div
+            </div>
+
+<video controls style="max-width:90%;">
+	<source type="video/webm" src="data:video/*;base64,<%=data%>">
+</video>
+        </main>
+    </div>
+
+</body>
+
+</html>
