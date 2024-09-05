@@ -19,13 +19,13 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//routes middleware setups
+// routes middleware setups
 
 app.use("/", publicRoute);
 app.use("/api/courses", courseRoute);
 app.use("/user/", userRoute);
 
-//server
+// server
 
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {

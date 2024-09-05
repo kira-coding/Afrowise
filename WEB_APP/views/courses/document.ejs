@@ -197,11 +197,14 @@
           <% for(let i=0;i<document.sections.length;i++){%>
             <div class="row">
               <a role="button" href="/api/courses/section/<%=document.sections[i]._id%>"
-                class="btn btn-secondary btn-lg  col-md-9 btn-block">
+                class="btn btn-secondary btn-lg  col-md-6 btn-block">
                 <%=document.sections[i].name%>
               </a>
               <a href="#" class="btn col-md-3 btn-dark disabled" role="button">
                 <%=document.sections[i].type%>
+              </a>
+              <a href="/api/courses/section/delete/<%=document.sections[i]._id%>" class="btn col-md-3 btn-dark " role="button">
+                trash
               </a>
             </div>
             <%}%>
@@ -239,26 +242,37 @@
 
                     <div class="card-body">
                       <input type="hidden" name="type" value="Image">
-                    <input type="file" class="card-text" name="buffer"  accept="Image/*">
+                      <label for="buffer">Upload Image</label>
+                      <input type="file" class="card-text" name="buffer" accept="Image/*">
                     </div>
 
                     <button type="submit" name="documentId" value="<%=document._id%>" class="btn btn-primary">
-                    Create
+                      Create
                     </button>
-                </form>
+                  </form>
 
-<form action="/api/courses/section" class="col" enctype="multipart/form-data" method="post">
+                  <form action="/api/courses/section" class="col" enctype="multipart/form-data" method="post">
 
 
                     <div class="card-body">
                       <input type="hidden" name="type" value="Video">
-                    <input type="file" class="card-text" name="buffer"  accept="Video/*">
+                      <label for="Video">Upload a video</label>
+                      <input type="file" class="card-text" name="buffer" accept="Video/*">
                     </div>
 
                     <button type="submit" name="documentId" value="<%=document._id%>" class="btn btn-primary">
-                    Create
+                      Create
                     </button>
-                </form>
+                  </form>
+
+                  <a href="/api/courses/question/<%=document._id%>">
+                    <div class="card-body">
+                      <div class="card-text">
+                        Create a question
+                      </div>
+                    </div>
+                  </a>
+
                 </div>
               </div>
               <div class="modal-footer">
@@ -279,16 +293,9 @@
             options,
           );
         </script>
-
-
       </main>
     </div>
   </div>
-
-
-
-
-
 </body>
 
 </html>

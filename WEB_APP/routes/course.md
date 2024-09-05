@@ -1,3 +1,21 @@
+<!--toc:start-->
+- [Create folder (POST /folders)](#create-folder-post-folders)
+- [Get all folders (GET /folders)](#get-all-folders-get-folders)
+- [Get a specific folder (GET /folders/:id)](#get-a-specific-folder-get-foldersid)
+- [Update a folder (PUT /folder/:id)](#update-a-folder-put-folderid)
+- [Documents:](#documents)
+- [Create document (POST /document)](#create-document-post-document)
+- [Get all documents (GET /document)](#get-all-documents-get-document)
+- [Update a document (PUT /document/:id)](#update-a-document-put-documentid)
+- [Delete a document (POST /document/delete/:id)](#delete-a-document-post-documentdeleteid)
+- [Update a text section (POST /text)](#update-a-text-section-post-text)
+- [Get a specific text section (GET /document/:id/text/:id2)](#get-a-specific-text-section-get-documentidtextid2)
+- [Get a specific section (GET /section/:id)](#get-a-specific-section-get-sectionid)
+- [Create image/video section (POST /section)](#create-imagevideo-section-post-section)
+- [Get a specific image section (GET /image/:id)](#get-a-specific-image-section-get-imageid)
+- [Get a specific video section (GET /video/:id)](#get-a-specific-video-section-get-videoid)
+<!--toc:end-->
+
 # Create folder (POST /folders)
 Requires name and parent (folder ID) in request body.
 Creates a new Folder document with the provided details.

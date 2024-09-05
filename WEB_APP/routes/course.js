@@ -10,6 +10,7 @@ const fs = require("fs");
 const auth_teacher = require("../middlewares/auth_teacher");
 const { render } = require("ejs");
 const { default: mongoose } = require("mongoose");
+
 async function deleteDocument(document) {
   let sections = document.sections;
   for (i in sections) {
@@ -18,8 +19,18 @@ async function deleteDocument(document) {
 
   await Document.findByIdAndDelete(document._id);
 
-  let documentId = new mongoose.Types.ObjectId(document._id);
+  let documentId = document._id;
   const elementToRemove = documentId.toString() + "D";
+  console.log("routes/course.js::40::folder has parent");
+  let parent = await Folder.findByIdAndUpdate(
+    document.parent,
+    {
+      $pull: { documents: documentId, order: elementToRemove },
+    },
+    { new: true },
+  );
+  return parent._id.toString();
+
 }
 async function deleteFolderRecursively(folderId) {
   const folder = await Folder.findById(folderId).populate("documents");
@@ -41,7 +52,7 @@ async function deleteFolderRecursively(folderId) {
   await Folder.deleteOne({ _id: folderId });
   // Remove this folder from parent's subdirs (optional, if maintaining parent integrity)
   if (folder.parent) {
-    console.log("routes/course.js::40::folder has paretn");
+    console.log("routes/course.js::40::folder has parent");
 
     folderId = new mongoose.Types.ObjectId(folderId);
     const elementToRemove = folderId.toString() + "F";
@@ -169,6 +180,27 @@ async function deleteFolderRecursively(folderId) {
       res.status(500).json({ message: err.message });
     }
   });
+  router.post("/folders/moveup/:id", async (req, res) => {
+    try {
+      let folder = await Folder.findById(req.params.id)
+      let parent = await Folder.findById(folder.parent)
+      let element = folder._id + "F"
+      let pos = parent.order.indexOf(element)
+      if (pos <= 0);
+      else {
+        let temp = parent.order[pos - 1]
+        parent.order[pos - 1] = element
+        parent.order[pos] = temp
+        console.log(parent.order.toLocaleString())
+        await parent.save()
+
+      }
+
+      res.redirect(`../${parent._id}`)
+    } catch (err) {
+      res.status(400).json({ message: err.message })
+    }
+  })
 }
 // Document
 {
@@ -247,6 +279,24 @@ async function deleteFolderRecursively(folderId) {
       res.status(500).json({ message: err.message });
     }
   });
+  router.post("/document/moveup/:id", async (req, res) => {
+    try {
+      let document = await Document.findById(req.params.id)
+      let parent = await Folder.findById(document.parent)
+      let element = document._id + "D"
+      let pos = parent.order.indexOf(element)
+      if (pos - 1 < 0);
+      else {
+        let temp = parent.order[pos - 1]
+        parent.order[pos - 1] = element
+        parent.order[pos] = temp
+        await parent.save()
+      }
+      res.redirect(`/api/courses/folders/${parent._id}`)
+    } catch (err) {
+      res.status(400).json({ message: err.message })
+    }
+  })
 }
 // Text
 {
@@ -288,7 +338,128 @@ async function deleteFolderRecursively(folderId) {
   });
 }
 
+// question {multiple choice , multiple answer ,matching , order,}
+
+{
+  router.get("/question/:id", auth_teacher, async (req, res) => {
+    // The Id of the document that a question is going to be created on.
+    try {
+      const document = await Document.findById(req.params.id);
+      res.render("courses/question", { document: document })
+    } catch (err) {
+      res.status(500).json({ message: err.message })
+    }
+  })
+  router.post('/question/:id/multiplechoice', async (req, res) => {
+    try {
+      let question = {
+        type: "multipleChoice",
+        multipleChoice: {
+          instruction: req.body.instruction,
+          correctAnswer: req.body.correct_answer,
+          options: req.body.options
+        }
+      }
+      let document = await Document.findById(req.params.id)
+      let section = new Section({
+        name: "Quize",
+        type: "Question",
+        question: question,
+        document: document._id
+      })
+      section = await section.save()
+      document.sections.push(section._id);
+      await document.save()
+      res.json(section)
+    } catch (err) {
+      res.status(400).json({ message: err.message })
+    }
+
+  })
+  router.post("/question/:id/multipleanswer", async (req, res) => {
+    try {
+      let document = await Document.findById(req.params.id)
+      let multipleAnswer = {
+        instruction: req.body.instruction,
+        options: req.body.options,
+        correctAnswers: req.body.answers
+      }
+      let question = {
+        type: "multipleAnswer",
+        multipleAnswer: multipleAnswer
+      }
+      let section = new Section({
+        name: "Quize",
+        type: "Question",
+        question: question
+      })
+      section = await section.save()
+      document.sections.push(section._id)
+      await document.save()
+      res.json(section)
+    } catch (err) {
+      res.status(400).send(err.message)
+    }
+  })
+  router.post("/question/:id/order", async (req, res) => {
+    try {
+      let document = await Document.findById(req.params.id)
+      let order = {
+        instruction: req.body.instruction,
+        correctlyOrdered: req.body.ordered,
+      }
+      let question = {
+        type: "order",
+        order: order
+      }
+      let section = new Section({
+        name: "Quize",
+        type: "Question",
+        question: question,
+        document: document._id
+      })
+      section = await section.save()
+      document.sections.push(section._id)
+      await document.save()
+      res.json(section)
+    } catch (err) {
+      res.status(400).send(err.message)
+    }
+
+  })
+  router.post("/question/:id/matching", async (req, res) => {
+    try {
+      let document = await Document.findById(req.params.id)
+      let matching = {
+        instruction: req.body.instruction,
+        firstColumn: req.body.one,
+        secondColumn: req.body.two
+
+      }
+
+      let question = {
+        type: "matching",
+        matching: matching
+      }
+      let section = new Section({
+        name: "Quize",
+        type: "Question",
+        question: question,
+        document: document._id
+      })
+      section = await section.save()
+      document.sections.push(section._id)
+      await document.save()
+      res.json(section)
+    } catch (err) {
+      res.json(err.message)
+    }
+  }
+  )
+
+}
 // Section
+
 {
   // get a specific section
   router.get("/section/:id", auth_teacher, async (req, res) => {
@@ -305,6 +476,8 @@ async function deleteFolderRecursively(folderId) {
         res.redirect("/api/courses/image/" + req.params.id);
       } else if (section.type == "Video") {
         res.redirect("/api/courses/video/" + req.params.id);
+      } else if (section.type == "Question") {
+        res.redirect("/api/courses/question" + req.params.id)
       }
     } catch (err) {
       res.status(500).json({ message: err.message });
@@ -382,9 +555,28 @@ async function deleteFolderRecursively(folderId) {
         });
       }
     } catch (err) {
+      console.log("error")
       res.status(500).json({ message: err.message });
     }
   });
+  router.get("/section/delete/:id", auth_teacher, async (req, res) => {
+    try {
+        let section = await Section.findByIdAndDelete(req.params.id)
+        let parent = await Document.findByIdAndUpdate(section.document,{$pull:{sections:section._id}})
+        if(section.type=="Video"||section.type=="Image"){
+         fs.unlink(section.address,(err)=>{
+          if(err){
+            console.log("failed to remove  "+ section.type + " at " + section.address )
+          }
+         }) 
+        }
+        res.redirect('/api/courses/document/'+parent._id)
+
+    } catch (error) {
+      res.status(400).send(error.message)
+      
+    }
+  })
   router.get("/image/:id", async (req, res) => {
     const section = await Section.findById(req.params.id).populate("document");
     fs.readFile(section.address, (err, data) => {
@@ -408,6 +600,14 @@ async function deleteFolderRecursively(folderId) {
       });
     });
   });
+  router.get('/question/:id', async (req, res) => {
+    try {
+      let section = await Section.findById(req.params.id)
+      res.render('/course/question_preview', { section: section })
+    } catch (err) {
+      res.status(400).send(err.message)
+    }
+  })
 }
 
 //Course
@@ -421,7 +621,6 @@ async function deleteFolderRecursively(folderId) {
       const newCourse = new Course({
         title: title,
         discription: discription,
-
         owner: author,
         rootFolder: savedFolder._id,
         state: "Pending",
@@ -439,4 +638,4 @@ async function deleteFolderRecursively(folderId) {
 }
 
 module.exports = router;
-// TODO:delete the folder with their sub documents
+

@@ -1,0 +1,48 @@
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f0f0f0;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+}
+
+.menu-button {
+  display: none;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links li {
+  margin: 0 1rem;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+}
+
+/* Media query for smaller screens */
+@media only screen and (max-width: 768px) {
+  .menu-button {
+      display: block;
+  }
+
+  .nav-links {
+      display: none;
+  }
+
+  .menu-button.active + .nav-links {
+      display: block;
+      text-align: center;
+  }
+}

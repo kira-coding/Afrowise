@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create question</title>
+</head>
+
+<body>
+  <main>
+    <span>question instruction</span>
+    <input type="text" id="instruction">
+    <hr><span>question type</span>
+
+    <select name="type" id="type">
+      <option value="multipleChoice">multipleChoice</option>
+
+      <option value="multipleAnswer">multipleAnswer</option>
+      <option value="matching">matching</option>
+      <option value="order">order</option>
+    </select>
+    <hr>
+    <div id="question_container">
+    </div>
+    <button type="button" onclick="save()">save</button>
+  </main>
+  <script src="/js/jquery-3.6.3.min.js"></script>
+  <script src="/js/question.js"></script>
+  <script>
+    function save(){
+      let instruction =document.getElementById('instruction').value 
+      if(selected=="multipleChoice"){
+      let correct_answer = document.getElementById("correct_choice").value   
+      let incorrect_answer_nodes= document.querySelectorAll(".choices")
+
+      let incorrect_answers=[]
+        incorrect_answer_nodes.forEach(element=>{
+          incorrect_answers.push(element.value)
+        })
+        $.ajax({
+          url:"/api/courses/question/<%=document._id%>/multiplechoice",
+          method:"POST",
+          data:{options:incorrect_answers,correct_answer:correct_answer,instruction:instruction},
+          respose:function(respose){
+            console.log(respose)
+          },
+          error:function(err){
+            console.log(err)
+          }
+
+        })
+      }else if( selected== "multipleAnswer"){
+        let answer_nodes = document.querySelectorAll(".answer")
+        let incorrect_answer_nodes= document.querySelectorAll(".incorrectAnswer") 
+        let answers = []
+        let incorrect_answers = []
+        answer_nodes.forEach(element=>{
+          answers.push(element.value)
+        })
+        incorrect_answer_nodes.forEach(element=>{
+          incorrect_answers.push(element.value)
+        })
+         $.ajax({
+           url:"/api/courses/question/<%=document._id%>/multipleanswer",
+           method:"POST",
+           data:{options:incorrect_answers,answers:answers,instruction:instruction},
+           respose:function(respose){
+             console.log(respose)
+           },
+           error:function(err){
+             console.log(err)
+           }
+
+        })
+
+      }else if( selected == "order"){
+        let ordered_nodes = document.querySelectorAll('.order')
+        let order = []
+        ordered_nodes.forEach(element=>{
+          order.push(element.value)
+        })
+        $.ajax({
+           url:"/api/courses/question/<%=document._id%>/order",
+           method:"POST",
+           data:{instruction:instruction,ordered:order},
+           respose:function(respose){
+             console.log(respose)
+           },
+           error:function(err){
+             console.log(err)
+           }
+
+        })
+
+      }else if ( selected =="matching"){
+        let one_nodes = document.querySelectorAll(".one")
+        let two_nodes = document.querySelectorAll(".two")
+        let one = []
+        let two = []
+        one_nodes.forEach(element=>{
+          one.push(element.value)
+        })
+        two_nodes.forEach(element=>{
+          two.push(element.value)
+        })
+        $.ajax({
+           url:"/api/courses/question/<%=document._id%>/matching",
+           method:"POST",
+           data:{instruction:instruction,one:one,two:two},
+           respose:function(respose){
+             console.log(respose)
+           },
+           error:function(err){
+             console.log(err)
+           }
+
+        })
+      }}
+  </script>
+</body>
+
+</html>
