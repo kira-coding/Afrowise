@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>courses</title>
+</head>
+
+<body>
+    <div>
+        <% for(let i=0;i<courses.length;i++){%>
+
+            <div class="row">
+                <a role="button" href="/api/courses/folders/<%=courses[i].rootFolder%>"
+                    class="btn btn-secondary btn-lg btn-block">
+                    <%=courses[i].title%>
+                </a>
+                <form action="/user/admin/course/post" method="post">
+                    <input type="hidden" name="id" value="<%=courses[i]._id%>">
+                    <button type="submit">Post</button>
+                </form>
+                <form action="/user/admin/course/review" method="post">
+                <input type="hidden" name="id" value="<%=courses[i]._id%>">
+                <input type="text" name="issue" id="issue" placeholder="the issue">
+                <textarea type="text" name="description" id="description" >description</textarea>
+                <button type="submit">Comment</button>
+                </form>
+                <a href="/api/courses/course/delete/<%=courses[i]._id%>">delete</a>
+            </div>
+
+            <%}%>
+    </div>
+</body>
+
+</html>

@@ -11,7 +11,8 @@ const documentSchema = new mongoose.Schema({
   }, //reference to the parent folder to allow backward navigation
 
   sections: [{ type: mongoose.Schema.Types.ObjectId, ref: "Section" }],
-  part:Number
+  part:Number,
+  course:{type: mongoose.Schema.Types.ObjectId, ref:"Course",required:true}
 });
 
 module.exports = mongoose.model("Document", documentSchema);

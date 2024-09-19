@@ -1,0 +1,67 @@
+{
+    "_id": "66e9cae1e23fcf7075376bf0",
+    "name": "Tutorial",
+    "documents": [],
+    "subdirs": [
+        {
+            "_id": "66e9cae6e23fcf7075376bf8",
+            "name": "1",
+            "documents": [
+                {
+                    "_id": "66e9caf2e23fcf7075376c00",
+                    "name": "1d",
+                    "type": "Document",
+                    "parent": "66e9cae6e23fcf7075376bf8",
+                    "sections": [
+                        {
+                            "_id": "66e9caf8e23fcf7075376c08",
+                            "name": "1sT",
+                            "type": "Text",
+                            "document": "66e9caf2e23fcf7075376c00",
+                            "content": "<p>Edit</p>",
+                            "__v": 0
+                        },
+                        {
+                            "_id": "66e9cc08afd43f8face39536",
+                            "name": "20240914_155417.jpg",
+                            "type": "Image",
+                            "document": "66e9caf2e23fcf7075376c00",
+                            "address": "/home/kira/dev/Afrowise/WEB_APP/uploads/66e9cae1e23fcf7075376bf0/172659815278120240914_155417.jpg",
+                            "__v": 0
+                        }
+                    ],
+                    "course": "66e9cae1e23fcf7075376bf2",
+                    "__v": 0,
+                    "part": 1
+                }
+            ],
+            "subdirs": []
+        },
+        {
+            "_id": "66e9cc2dafd43f8face3954a",
+            "name": "2",
+            "documents": [
+                {
+                    "_id": "66e9cc33afd43f8face39552",
+                    "name": "2d",
+                    "type": "Document",
+                    "parent": "66e9cc2dafd43f8face3954a",
+                    "sections": [
+                        {
+                            "_id": "66e9cc41afd43f8face3955a",
+                            "name": "dark brow color.png",
+                            "type": "Image",
+                            "document": "66e9cc33afd43f8face39552",
+                            "address": "/home/kira/dev/Afrowise/WEB_APP/uploads/66e9cae1e23fcf7075376bf0/1726598209499dark brow color.png",
+                            "__v": 0
+                        }
+                    ],
+                    "course": "66e9cae1e23fcf7075376bf2",
+                    "__v": 0,
+                    "part": 1
+                }
+            ],
+            "subdirs": []
+        }
+    ]
+}

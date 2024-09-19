@@ -7,19 +7,24 @@ const studentSchema = new mongoose.Schema({
   last_name: { type: String, required: true, },
   user_name: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  enrollments:[{type:mongoose.Schema.Types.ObjectId,ref:'Enrollment'}],
-  gender:{type:String,required:true},
-  email:{type:mongoose.Schema.Types.String,required:true}
+  enrollments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Enrollment' }],
+  gender: {
+    type: String,
+    required: true,
+    enum: ['M', "F"],
+  },
+  email: { type: mongoose.Schema.Types.String, required: true }
 
 
 });
 
-studentSchema.methods.generateJWT= function () {
+studentSchema.methods.generateJWT = function () {
+
   return jwt.sign({
     id: this._id,
     user_name: this.user_name,
     first_name: this.first_name,
-    middle_name: this.middle_name
+    enrollments:this.enrollments
   },
     config.get("JWT-secret-key"))
 }

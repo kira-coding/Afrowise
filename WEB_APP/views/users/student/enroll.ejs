@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%=course.title%>
+    </title>
+</head>
+
+<body>
+    <div>
+        <%=course.title%>
+            <%=course.description%>
+                
+                    <%=course.state%>
+                        <%=course.tags%>
+                            
+    </div>
+    <a href="/user/student/start/<%=course._id%>">Start</a>
+</body>
+
+</html>

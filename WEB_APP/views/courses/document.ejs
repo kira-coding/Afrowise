@@ -226,18 +226,18 @@
               <div class="modal-body">
                 <div class="row px-2 justify-content-center">
 
-                  <form action="/api/courses/section" class="col" method="post">
+                  <form action="/api/courses/section/<%=course%>" class="col" method="post">
 
 
                     <div class="card-body">
-                      <input type="text" class="card-text" name="type" value="Text">Text</H1>
+                      <input type="text" class="card-text" name="name" value="Text">Text</H1>
                     </div>
-
+                    <input type="hidden" name="type" value="Text">
                     <button type="submit" name="documentId" value="<%=document._id%>" class="btn btn-primary">
                       Create
                     </button>
                   </form>
-                  <form action="/api/courses/section" class="col" enctype="multipart/form-data" method="post">
+                  <form action="/api/courses/section/<%=course%>" class="col" enctype="multipart/form-data" method="post">
 
 
                     <div class="card-body">
@@ -251,7 +251,7 @@
                     </button>
                   </form>
 
-                  <form action="/api/courses/section" class="col" enctype="multipart/form-data" method="post">
+                  <form action="/api/courses/section/<%=course%>" class="col" enctype="multipart/form-data" method="post">
 
 
                     <div class="card-body">

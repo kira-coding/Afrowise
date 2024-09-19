@@ -23,13 +23,13 @@ description (String, required): A detailed description of the course (length 3-1
 - name (String): The name of the folder. (Uniqueness is not enforced)
 - type (String): The type of folder (course root, subfolder, etc.).
 - parent (ObjectId, optional, ref: "Folder"): A reference to the parent folder for nested structures.
-- subdirs (Array of ObjectIds, ref: "Folder"): An array of ObjectIds referencing subfolders within the current folder.
+- subdir (Array of ObjectIds, ref: "Folder"): An array of ObjectIds referencing subfolders within the current folder.
 - documents (Array of ObjectIds, ref: "Document"): An array of ObjectIds referencing documents within the current folder.
 - order (Array of Strings): An array of strings (potentially document or folder IDs) defining the order of content displayed within the folder.
 # Relationships:
 
 - A Course has a one-to-one relationship with a Folder through the rootFolder field.
-- A Folder can have a one-to-many relationship with other Folders through the parent and subdirs fields.
+- A Folder can have a one-to-many relationship with other Folders through the parent and subdir fields.
 - A Folder can have a one-to-many relationship with Documents through the documents field.
 - A Document has a one-to-many relationship with Sections through the sections field.
 

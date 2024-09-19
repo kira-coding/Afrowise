@@ -8,9 +8,10 @@ const teacherSchema = new mongoose.Schema({
 
   user_name: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  email: { type: String, required:true},
   courses:[{type:mongoose.Schema.Types.ObjectId,ref:'Course'}]
 });
-teacherSchema.methods.generatejwt = function () {
+teacherSchema.methods.generateJWT = function () {
   return jwt.sign({
     id: this._id,
     user_name: this.user_name,

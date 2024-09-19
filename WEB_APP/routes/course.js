@@ -7,31 +7,51 @@ const Section = require("../models/course/Section");
 const Course = require("../models/course/Course");
 const Teacher = require("../models/users/Teacher");
 const fs = require("fs");
+const path = require("path");
 const auth_teacher = require("../middlewares/auth_teacher");
 const { render } = require("ejs");
 const { default: mongoose } = require("mongoose");
 
 async function deleteDocument(document) {
   let sections = document.sections;
-  for (i in sections) {
-    await Section.deleteOne({ _id: sections[i] });
-  }
+  await Promise.all(sections.map(async (sectionId) => {
+    try {
+      let section = await Section.findByIdAndDelete({ _id: sectionId });
+      if (section.type == "Video" || section.type == "Image") {
+        fs.unlink(section.address, (err) => {
+          if (err) {
+            console.log("failed to remove  " + section.type + " at " + section.address)
+          }
+        })
+      }
+    } catch (error) {
+      console.error(`Error deleting section: ${error}`);
+    }
+  }));
 
-  await Document.findByIdAndDelete(document._id);
+  try {
+    await Document.findByIdAndDelete(document._id);
+  } catch (error) {
+    console.error(`Error deleting document: ${error}`);
+  }
 
   let documentId = document._id;
   const elementToRemove = documentId.toString() + "D";
   console.log("routes/course.js::40::folder has parent");
-  let parent = await Folder.findByIdAndUpdate(
-    document.parent,
-    {
-      $pull: { documents: documentId, order: elementToRemove },
-    },
-    { new: true },
-  );
-  return parent._id.toString();
-
+  let parent;
+  try {
+    parent = await Folder.findByIdAndUpdate(
+      document.parent,
+      {
+        $pull: { documents: documentId, order: elementToRemove },
+      },
+      { new: true },
+    );
+  } catch (error) {
+    console.error(`Error updating parent folder: ${error}`);
+  }
 }
+
 async function deleteFolderRecursively(folderId) {
   const folder = await Folder.findById(folderId).populate("documents");
 
@@ -66,17 +86,24 @@ async function deleteFolderRecursively(folderId) {
     return parent._id.toString();
   }
 }
+
 // Folder
 {
   // create folder
-  router.post("/folders", auth_teacher, async (req, res) => {
+  router.post("/folders/:course", auth_teacher, async (req, res) => {
     const { name, parent } = req.body;
     try {
+
+      const course = await Course.findById( req.params.course);
+      
+      if (!(req.teacher.id === course.owner.toString())) return res.status(403).json({ message: "Not allowed" });
+        
       if (parent && name) {
         const newFolder = new Folder({
           name: name,
           parent: parent,
           type: "Folder",
+          course:course._id.toString(),
         });
         let savedFolder = await newFolder.save();
         let parentObj = await Folder.findByIdAndUpdate(
@@ -90,7 +117,7 @@ async function deleteFolderRecursively(folderId) {
         parentObj.order.push(`${savedFolder._id}F`);
         await parentObj.save();
         console.log(parent);
-        res.redirect(`./folders/${parent}`);
+        res.redirect(`../folders/${parent}/${req.params.course}`);
       } else {
         res.json({ message: "both name and parent required" });
       }
@@ -99,25 +126,23 @@ async function deleteFolderRecursively(folderId) {
       res.status(500).json({ message: err.message });
     }
   });
-  // Get all folders
-  router.get("/folders", async (req, res) => {
-    try {
-      const folders = await Folder.find()
-        .populate("subdirs")
-        .populate("documents");
-      res.json(folders);
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  });
   // Get a specific folder
-  router.get("/folders/:id", async (req, res) => {
+  router.get("/folders/:id/:course", async (req, res) => {
+
     try {
+      let teacher = req.cookies.teacher
+      let admin = req.cookies.admin
+      if (!admin && !teacher) {
+        return res.status(403).send("not allowed");
+        // TODO verify either tokens
+      }
+
+      // TODO: verify each token
       let folder = await Folder.findById(req.params.id)
         .populate("subdirs", ["name", "_id", "type"])
         .populate("documents", ["name", "_id", "type"]);
-
-      let content = {};
+      if (!(folder.course.toString() ===req.params.course)) return res.status(404).send("Course is not for this folder");
+        let content = {};
       let folderindex = 0;
       let documentindex = 0;
       content.length = 0;
@@ -148,13 +173,13 @@ async function deleteFolderRecursively(folderId) {
         content.length++;
       }
       console.log(content);
-      res.render("courses/folder.ejs", { folder: folder, content: content });
+      res.render("courses/folder.ejs", { folder: folder, content: content,course:req.params.course });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
   });
   // Update a folder
-  router.put("/folder/:id", async (req, res) => {
+  router.put("/folder/:id", auth_teacher, async (req, res) => {
     const { name } = req.body;
     if (!name)
       return res.status(400).json({ message: "name field is required" });
@@ -172,7 +197,7 @@ async function deleteFolderRecursively(folderId) {
     }
   });
   // Delete a folder
-  router.post("/folders/delete/:id", async (req, res) => {
+  router.post("/folders/delete/:id", auth_teacher, async (req, res) => {
     try {
       const parent = await deleteFolderRecursively(req.params.id);
       res.redirect("/api/courses/folders/" + parent);
@@ -180,7 +205,7 @@ async function deleteFolderRecursively(folderId) {
       res.status(500).json({ message: err.message });
     }
   });
-  router.post("/folders/moveup/:id", async (req, res) => {
+  router.post("/folders/moveup/:id", auth_teacher, async (req, res) => {
     try {
       let folder = await Folder.findById(req.params.id)
       let parent = await Folder.findById(folder.parent)
@@ -196,19 +221,24 @@ async function deleteFolderRecursively(folderId) {
 
       }
 
-      res.redirect(`../${parent._id}`)
+      res.redirect(`../${parent._id}/${parent.course.toString()}`)
     } catch (err) {
       res.status(400).json({ message: err.message })
     }
   })
+
 }
+
 // Document
 {
   // Create Document
-  router.post("/document", auth_teacher, async (req, res) => {
+  router.post("/document/:course", auth_teacher, async (req, res) => {
     try {
+      const course = await Course.findById( req.params.course);
+      if (!(req.teacher.id=== course.owner.toString())) return res.status(403).json({ message: "Not allowed" })
+    
       const { name, parent } = req.body;
-      const newDocument = new Document({ name, parent, type: "Document" });
+      const newDocument = new Document({ name, parent, type: "Document",course:req.params.course });
       const savedDocument = await newDocument.save();
       // should be added to a Folder
       let parentObj = await Folder.findByIdAndUpdate(
@@ -221,30 +251,30 @@ async function deleteFolderRecursively(folderId) {
 
       parentObj.order.push(`${savedDocument._id}D`);
       await parentObj.save();
-      res.redirect(`./folders/${parent}`);
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  });
-  // Get all Documents
-  router.get("/document", auth_teacher, async (req, res) => {
-    try {
-      const documents = await Document.find().populate("sections");
-      res.json(documents);
+      res.redirect(`../folders/${parent}/${req.params.course}`);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
   });
   // Get a specific document
-  router.get("/document/:id", auth_teacher, async (req, res) => {
-    try {
-      const document = await Document.findById(req.params.id).populate(
-        "sections",
-      );
-      res.render("courses/document", { document: document });
-    } catch (err) {
-      res.status(500).json({ message: err.message });
+  router.get("/document/:id/:course", async (req, res) => {
+    // try {
+    let teacher = req.cookies.teacher
+    let admin = req.cookies.admin
+    if (!admin && !teacher) {
+      return res.status(403).send("not allowed");
+      // TODO verify either tokens
     }
+    const document = await Document.findById(req.params.id).populate(
+      "sections",
+    );
+    console.log(document);
+    if (!(document.course.toString() ===req.params.course)) return res.status(404).send("Course is not for this document");
+       
+    res.render("courses/document", { document: document,course:req.params.course });
+    // } catch (err) {
+    //   res.status(500).json({ message: err.message });
+    // }
   });
   // Update a document
   router.put("/document/:id", auth_teacher, async (req, res) => {
@@ -279,7 +309,7 @@ async function deleteFolderRecursively(folderId) {
       res.status(500).json({ message: err.message });
     }
   });
-  router.post("/document/moveup/:id", async (req, res) => {
+  router.post("/document/moveup/:id", auth_teacher, async (req, res) => {
     try {
       let document = await Document.findById(req.params.id)
       let parent = await Folder.findById(document.parent)
@@ -292,7 +322,7 @@ async function deleteFolderRecursively(folderId) {
         parent.order[pos] = temp
         await parent.save()
       }
-      res.redirect(`/api/courses/folders/${parent._id}`)
+      res.redirect(`/api/courses/folders/${parent._id}/${parent.course.toString()}`)
     } catch (err) {
       res.status(400).json({ message: err.message })
     }
@@ -305,7 +335,7 @@ async function deleteFolderRecursively(folderId) {
   // Get a specific text object :: is not required here since the section route handles this part
 
   // Update a text object
-  router.post("/text", async (req, res) => {
+  router.post("/text", auth_teacher, async (req, res) => {
     const { id, content, name } = req.body;
     if (!content)
       return res.status(400).json({ message: "content field is required" });
@@ -350,7 +380,7 @@ async function deleteFolderRecursively(folderId) {
       res.status(500).json({ message: err.message })
     }
   })
-  router.post('/question/:id/multiplechoice', async (req, res) => {
+  router.post('/question/:id/multiplechoice', auth_teacher, async (req, res) => {
     try {
       let question = {
         type: "multipleChoice",
@@ -376,7 +406,7 @@ async function deleteFolderRecursively(folderId) {
     }
 
   })
-  router.post("/question/:id/multipleanswer", async (req, res) => {
+  router.post("/question/:id/multipleanswer", auth_teacher, async (req, res) => {
     try {
       let document = await Document.findById(req.params.id)
       let multipleAnswer = {
@@ -401,7 +431,7 @@ async function deleteFolderRecursively(folderId) {
       res.status(400).send(err.message)
     }
   })
-  router.post("/question/:id/order", async (req, res) => {
+  router.post("/question/:id/order", auth_teacher, async (req, res) => {
     try {
       let document = await Document.findById(req.params.id)
       let order = {
@@ -427,7 +457,7 @@ async function deleteFolderRecursively(folderId) {
     }
 
   })
-  router.post("/question/:id/matching", async (req, res) => {
+  router.post("/question/:id/matching", auth_teacher, async (req, res) => {
     try {
       let document = await Document.findById(req.params.id)
       let matching = {
@@ -461,9 +491,16 @@ async function deleteFolderRecursively(folderId) {
 // Section
 
 {
+
   // get a specific section
-  router.get("/section/:id", auth_teacher, async (req, res) => {
+  router.get("/section/:id", async (req, res) => {
     try {
+      let teacher = req.cookies.teacher
+      let admin = req.cookies.admin
+      if (!admin && !teacher) {
+        return res.status(403).send("not allowed");
+        // TODO verify either tokens
+      }
       const section = await Section.findById(req.params.id).populate(
         "document",
       );
@@ -483,36 +520,58 @@ async function deleteFolderRecursively(folderId) {
       res.status(500).json({ message: err.message });
     }
   });
-  router.post("/section", async (req, res) => {
-    try {
-      const { type } = req.body;
+  router.post("/section/:course", auth_teacher, async (req, res) => {
+    // try {
+    const course = await Course.findById(req.params.course)
+    if (!(req.teacher.id  === course.owner.toString())) return res.status(403).json({ message: "Not allowed" })
+    const { type, name } = req.body;
 
-      const { documentId } = req.body;
-      if (type == "Text") {
-        const newSection = new Section({
-          content: "Edit",
-          document: documentId,
-          type: "Text",
-          name: "untitled",
-        });
-        const savedSection = await newSection.save();
+    const { documentId } = req.body;
+    if (type == "Text") {
+      const newSection = new Section({
+        content: "Edit",
+        document: documentId,
+        type: "Text",
+        name: name,
+      });
+      const savedSection = await newSection.save();
 
-        // save the new section in the documents list to stay organized and to save query performance later on
-        const document = await Document.findByIdAndUpdate(documentId, {
-          $push: { sections: savedSection._id },
-        });
-        res.render("courses/edit_text", {
-          document: document,
-          section: savedSection,
-        });
-      } else if (type == "Image") {
-        let image;
-        if (!req.files || Object.keys(req.files).length === 0) {
-          return res.status(400).send("No files were uploaded.");
+      // save the new section in the documents list to stay organized and to save query performance later on
+      const document = await Document.findByIdAndUpdate(documentId, {
+        $push: { sections: savedSection._id },
+      });
+      res.render("courses/edit_text", {
+        document: document,
+        section: savedSection,
+      });
+    }
+    else if (type == "Image") {
+      let image;
+      if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send("No files were uploaded.");
+      }
+      image = req.files.buffer;
+      console.log(image.name)
+      let rootFolder = path.join(process.cwd(), "uploads", course.rootFolder.toString());
+       fs.access(rootFolder, fs.constants.F_OK,async (err)=>{
+        if (err) {
+          console.log('Directory already exists:', rootFolder);
+          if (err.code === 'ENOENT') {
+            fs.mkdir(rootFolder, { recursive: true },(error)=>{
+              if(error) return res.send(error);
+              console.log('Directory created:', rootFolder);
+            });
+            
+          } else {
+            throw err; // Handle other errors
+          }
         }
-        image = req.files.buffer;
-        uploadPath =
-          process.cwd() + "/uploads/" + Math.random() * 10000 + image.name;
+       })
+       
+      
+      const timestamp = Date.now();
+      const randomNumber = Math.floor(Math.random() * 10000);
+      const uploadPath = rootFolder + '/' + timestamp + image.name;
         image.mv(uploadPath, async function (err) {
           if (err) return res.status(500).send(err);
           const newSection = new Section({
@@ -529,52 +588,70 @@ async function deleteFolderRecursively(folderId) {
           });
           res.redirect("/api/courses/image/" + savedSection._id);
         });
-      } else if (type == "Video") {
-        let image;
-        if (!req.files || Object.keys(req.files).length === 0) {
-          return res.status(400).send("No files were uploaded.");
-        }
-        video = req.files.buffer;
-        uploadPath =
-          process.cwd() + "/uploads/" + Math.random() * 10000 + video.name;
-        video.mv(uploadPath, async function (err) {
-          if (err) return res.status(500).send(err);
-          const newSection = new Section({
-            address: uploadPath,
-            document: documentId,
-            type: "Video",
-            name: video.name,
-          });
-          const savedSection = await newSection.save();
-
-          // save the new section in the documents list to stay organized and to save query performance later on
-          const document = await Document.findByIdAndUpdate(documentId, {
-            $push: { sections: savedSection._id },
-          });
-          res.redirect("/api/courses/video/" + savedSection._id);
-        });
-      }
-    } catch (err) {
-      console.log("error")
-      res.status(500).json({ message: err.message });
     }
+    else if (type == "Video") {
+      let video;
+      if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send("No files were uploaded.");
+      }
+      video = req.files.buffer;
+      let rootFolder = path.join(process.cwd(), "uploads", course.rootFolder.toString());
+      
+      fs.access(rootFolder, fs.constants.F_OK,async (err)=>{
+        if (err) {
+          console.log('Directory already exists:', rootFolder);
+          if (err.code === 'ENOENT') {
+            fs.mkdir(rootFolder, { recursive: true },(error)=>{
+              if(error) return res.send(error);
+              console.log('Directory created:', rootFolder);
+            });
+            
+          } else {
+            throw err; // Handle other errors
+          }
+        }
+       })
+      const timestamp = Date.now();
+      const randomNumber = Math.floor(Math.random() * 10000);
+      const uploadPath = rootFolder + '/' + timestamp + video.name;
+      video.mv(uploadPath, async function (err) {
+        if (err) return res.status(500).send(err);
+        const newSection = new Section({
+          address: uploadPath,
+          document: documentId,
+          type: "Video",
+          name: video.name,
+        });
+        const savedSection = await newSection.save();
+
+        // save the new section in the documents list to stay organized and to save query performance later on
+        const document = await Document.findByIdAndUpdate(documentId, {
+          $push: { sections: savedSection._id },
+        });
+        res.redirect("/api/courses/video/" + savedSection._id);
+      });
+    }
+    // } catch (err) {
+    //   console.log("error")
+    //   res.status(500).json({ message: err});
+    // }
   });
   router.get("/section/delete/:id", auth_teacher, async (req, res) => {
     try {
-        let section = await Section.findByIdAndDelete(req.params.id)
-        let parent = await Document.findByIdAndUpdate(section.document,{$pull:{sections:section._id}})
-        if(section.type=="Video"||section.type=="Image"){
-         fs.unlink(section.address,(err)=>{
-          if(err){
-            console.log("failed to remove  "+ section.type + " at " + section.address )
+      let section = await Section.findByIdAndDelete(req.params.id)
+      let parent = await Document.findByIdAndUpdate(section.document, { $pull: { sections: section._id } })
+      if (section.type == "Video" || section.type == "Image") {
+        fs.unlink(section.address, (err) => {
+          if (err) {
+            console.log("failed to remove  " + section.type + " at " + section.address)
           }
-         }) 
-        }
-        res.redirect('/api/courses/document/'+parent._id)
+        })
+      }
+      res.redirect('/api/courses/document/' + parent._id)
 
     } catch (error) {
       res.status(400).send(error.message)
-      
+
     }
   })
   router.get("/image/:id", async (req, res) => {
@@ -590,6 +667,12 @@ async function deleteFolderRecursively(folderId) {
   });
 
   router.get("/video/:id", async (req, res) => {
+    let teacher = req.cookies.teacher
+    let admin = req.cookies.admin
+    if (!admin && !teacher) {
+      return res.status(403).send("not allowed");
+      // TODO verify either tokens
+    }
     const section = await Section.findById(req.params.id).populate("document");
     fs.readFile(section.address, (err, data) => {
       if (err) return res.status(500).send("not found");
@@ -602,8 +685,14 @@ async function deleteFolderRecursively(folderId) {
   });
   router.get('/question/:id', async (req, res) => {
     try {
+      let teacher = req.cookies.teacher
+      let admin = req.cookies.admin
+      if (!admin && !teacher) {
+        return res.status(403).send("not allowed");
+        // TODO verify either tokens
+      }
       let section = await Section.findById(req.params.id)
-      res.render('/course/question_preview', { section: section })
+      res.render('courses/question_preview', { section: section })
     } catch (err) {
       res.status(400).send(err.message)
     }
@@ -613,14 +702,14 @@ async function deleteFolderRecursively(folderId) {
 //Course
 {
   router.post("/course", auth_teacher, async (req, res) => {
-    const { title, discription } = req.body;
+    const { title, description } = req.body;
     const author = req.teacher.id;
     try {
       const newFolder = new Folder({ name: title, type: "Folder" });
       const savedFolder = await newFolder.save();
       const newCourse = new Course({
         title: title,
-        discription: discription,
+        description: description,
         owner: author,
         rootFolder: savedFolder._id,
         state: "Pending",
@@ -630,12 +719,48 @@ async function deleteFolderRecursively(folderId) {
       const updateTeacher = await Teacher.findByIdAndUpdate(author, {
         $push: { courses: savedCourse._id },
       });
-      res.redirect(`/api/courses/folders/${savedFolder._id}`);
+     savedFolder.course = savedCourse._id.toString()
+     await savedFolder.save()
+      res.redirect(`/api/courses/folders/${savedFolder._id}/${savedCourse._id.toString()}`);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
   });
+  router.post("/course/post/:id", auth_teacher, async (req, res) => {
+    try {
+      const course = await Course.findByIdAndUpdate(req.params.id, { state: "Submitted" })
+      res.redirect("/user/teacher/courses");
+    } catch (err) {
+      res.send(err.message);
+    }
+  })
+  router.get("/course/delete/:id", auth_teacher, async (req, res) => {
+    try {
+      const course = await Course.findByIdAndDelete(req.params.id)
+      await deleteFolderRecursively(course.rootFolder)
+      res.redirect("/user/teacher/courses");
+    } catch (err) {
+      res.send(err.message);
+    }
+  })
+
+  router.get("/search/:query", async (req, res) => {
+    try {
+      let teacher = req.teacher
+      let admin = req.admin
+      if (!admin && !teacher) {
+        return res.status(403).send("not allowed");
+        // TODO verify either tokens
+      }
+      const results = await Course.find({
+        $text: { $search: req.params.query }
+      })
+        .limit(5);
+      res.json(results);
+    } catch (err) {
+      res.send(err.message);
+    }
+  })
 }
 
 module.exports = router;
-

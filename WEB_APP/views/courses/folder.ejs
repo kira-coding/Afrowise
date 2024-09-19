@@ -185,7 +185,7 @@
       <%=folder.name%>
      </h1>
      <%if(folder.parent){%>
-      <a class="btn btn-primary col-md-3" href="/api/courses/folders/<%=folder.parent%>">back</a>
+      <a class="btn btn-primary col-md-3" href="/api/courses/folders/<%=folder.parent%>/<%=course%>">back</a>
       <%}%>
        <div class="btn-group btn-group-sm  col-md-3 mx-0" role="group" aria-label="Create ">
         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#add_folder">
@@ -206,7 +206,7 @@
      <% for(let i=0;i<content.length;i++){%>
       <% if(content[i].type=="Folder" ){%>
        <div class="row">
-        <a role="button" href="/api/courses/folders/<%=content[i]._id%>" class="btn btn-secondary btn-lg btn-block">
+        <a role="button" href="/api/courses/folders/<%=content[i]._id%>/<%=course%>" class="btn btn-secondary btn-lg btn-block">
 
          <%=content[i].name%>
         </a>
@@ -217,7 +217,7 @@
        </div>
        <%}else if(content[i].type=="Document" ){%>
         <div class="row">
-         <a role="button" href="/api/courses/document/<%=content[i]._id%>" class="btn btn-secondary col-md-6">
+         <a role="button" href="/api/courses/document/<%=content[i]._id%>/<%=course%>" class="btn btn-secondary col-md-6">
           <%=content[i].name%>
          </a>
          <form action="/api/courses/document/delete/<%=content[i]._id%>" method="post"><button type="submit"
@@ -237,7 +237,7 @@
     <div class="modal fade" id="add_folder" tabindex="-1" data-bs-keyboard="false" role="dialog"
      aria-labelledby="modalTitleId" aria-hidden="true">
      <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
-      <form action="/api/courses/folders" method="post">
+      <form action="/api/courses/folders/<%=course%>" method="post">
        <div class="modal-content">
         <div class="modal-header">
          <h5 class="modal-title" id="modalTitleId">
@@ -271,7 +271,7 @@
     <div class="modal fade" id="add_document" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
      role="dialog" aria-labelledby="document_add" aria-hidden="true">
      <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
-      <form action="/api/courses/document" method="post">
+      <form action="/api/courses/document/<%=course%>" method="post">
        <div class="modal-content">
         <div class="modal-header">
          <h5 class="modal-title" id="document_add">

@@ -182,11 +182,13 @@
         </div>
         <div style="padding-left: 40% ;">
           <% for(let i=0;i<courses.length;i++){%>
+            <% if(courses[i].state=="Pending"){%>
             <div class="row">
-              <a role="button"href="/api/courses/folders/<%=courses[i].rootFolder%>" class="btn btn-secondary btn-lg btn-block"><%=courses[i].title%></a>
-              
-
+              <a role="button"href="/api/courses/folders/<%=courses[i].rootFolder%>/<%=courses[i]._id%>" class="btn btn-secondary btn-lg btn-block"><%=courses[i].title%></a>
+              <form action="/api/courses/course/post/<%=courses[i]._id%>" method="post"><button class="btn btn-success" type="submit">Post</button></form>
+              <a href="/api/courses/course/delete/<%=courses[i]._id%>">delete</a>
             </div>
+            <%}%>
             <%}%>
         </div>
       </main>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>create</title>
+</head>
+<body>
+    <form action="/user/admin/create_admin" enctype="multipart/form-data"  method="post">
+        <input type="text" name="first_name" id="first_name">
+        <label for="first_name">first_name</label>
+        <input type="text" name="last_name" id="last_name">
+        <label for="last_name">last name</label>
+        <input type="text" name="password" id="password">
+        <label for="password">password</label>
+        <input type="email" name="email" id="email">
+        <label for="email">email</label>
+        <input type="file" name="profile_picture" id="profile_picture">
+        <label for="profile_picture">profile picture</label>
+        <button type="submit">Create</button>
+    </form>
+</body>
+</html>

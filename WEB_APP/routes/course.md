@@ -28,7 +28,7 @@ Processes the order array to construct the content list, differentiating folders
 # Update a folder (PUT /folder/:id)
 Updates the name of a folder based on the provided request body.
 Delete a folder (POST /folders/delete/:id)
-Calls the deleteFolderRecursively function to efficiently delete the folder and its subdocuments.
+Calls the deleteFolderRecursively function to efficiently delete the folder and its sub-documents.
 Redirects to the parent folder view after deletion.
 # Documents:
 
@@ -64,7 +64,7 @@ Images and Videos:
 
 # Create image/video section (POST /section)
 Requires type ("Image" or "Video") and documentId in request body.
-Handles file uploads using express-fileupload.
+Handles file uploads using express-file-upload.
 Creates a new Section document with the uploaded file path and document association.
 Updates the parent document to include the new section's ID in its sections array.
 # Get a specific image section (GET /image/:id)

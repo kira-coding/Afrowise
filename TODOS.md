@@ -1,14 +1,17 @@
 - [x] create a login route for student that has jwt validation
 - [x] create an auth middle ware for student authorization
 - [x] create an admin user
-- [ ] authorize the admin user
-- [ ] create an otp and send an email to users 
-- [ ] allow teacher registeration from otp
-- [ ] admins allow to view pending courses write comment and post
+- [x] authorize the admin user
+- [x] create an otp and send an email to users 
+- [x] allow teacher registeration from otp
+- [x] admins allow to view pending courses write comment and post
 - [ ] when course is transfered from pending state to posted their should be partitioning
 - [ ] courses sync route for student
 - [ ] course map generation
 - [ ] zip pipe
+- [ ] tauri student sign up
+- [ ] tauri course sync
+- [ ] tauri course visualization
 - [ ] ui
 - [ ] client ui 
 
