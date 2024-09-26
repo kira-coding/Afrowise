@@ -7,7 +7,7 @@ const otpSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    otp: {
+    value: {
         type: String,
         required: true
     },
@@ -20,11 +20,11 @@ const otpSchema = new mongoose.Schema({
 
 otpSchema.methods.generateJWT = function () {
     return jwt.sign({
-      id: this._id,
-      email:this.email
+        id: this._id,
+        email: this.email
     },
-      config.get("JWT-secret-key"))
-  }
+        config.get("JWT-secret-key"))
+}
 const OTP = mongoose.model('OTP', otpSchema);
 
 module.exports = OTP;

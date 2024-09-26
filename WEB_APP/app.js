@@ -5,7 +5,7 @@ const config = require("config");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 const publicRoute = require("./routes/public");
-const courseRoute = require("./routes/course");
+const courseRoute = require("./routes/api");
 const userRoute = require("./routes/users");
 const fileUpload = require("express-fileupload");
 const app = express();
@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // routes middleware setups
 
 app.use("/", publicRoute);
-app.use("/api/courses", courseRoute);
+app.use("/api/", courseRoute);
 app.use("/user/", userRoute);
 
 // server

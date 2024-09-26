@@ -3,7 +3,7 @@ const OTP = require("../models/users/OTP");
 const generateOTP = async (email) => {
     const otp_value = Math.floor(Math.random() * 1000000).toString()
     const otp = await OTP.create({ email: email, otp: otp_value });
-
+    await sendOTP(email,otp.value);
     return otp;
 };
 
@@ -12,11 +12,11 @@ const sendOTP = async (email, otp) => {
     // TODO: SEnd otp to email with nodemailer 
 };
 
-const verifyOTP = async (email, otp) => {
+const verifyOTP = async (email, value) => {
     try {
-        const otpDocument = await OTP.findOne({ email, otp });
-        if (!otpDocument) {
-            throw new Error('Invalid OTP');
+        const otp = await OTP.findOne({ email});
+        if (!otp || !otp.value === value) {
+             throw new Error('Invalid OTP');
         }
         if (otpDocument.createdAt < Date.now() - 3600000) {
             throw new Error('OTP expired');

@@ -39,11 +39,11 @@
           incorrect_answers.push(element.value)
         })
         $.ajax({
-          url:"/api/courses/question/<%=document._id%>/multiplechoice",
+          url:"/api/courses/question/<%=document._id%>/multipleChoice",
           method:"POST",
           data:{options:incorrect_answers,correct_answer:correct_answer,instruction:instruction},
-          respose:function(respose){
-            console.log(respose)
+          success:function(response){
+            console.log(response)
           },
           error:function(err){
             console.log(err)
@@ -62,11 +62,13 @@
           incorrect_answers.push(element.value)
         })
          $.ajax({
-           url:"/api/courses/question/<%=document._id%>/multipleanswer",
+           url:"/api/courses/question/<%=document._id%>/multipleAnswer",
            method:"POST",
            data:{options:incorrect_answers,answers:answers,instruction:instruction},
-           respose:function(respose){
-             console.log(respose)
+           success:function(response){
+             console.log(async (params) => {
+              response
+             })
            },
            error:function(err){
              console.log(err)
@@ -84,8 +86,8 @@
            url:"/api/courses/question/<%=document._id%>/order",
            method:"POST",
            data:{instruction:instruction,ordered:order},
-           respose:function(respose){
-             console.log(respose)
+           success:function(response){
+             console.log(response)
            },
            error:function(err){
              console.log(err)
@@ -108,8 +110,8 @@
            url:"/api/courses/question/<%=document._id%>/matching",
            method:"POST",
            data:{instruction:instruction,one:one,two:two},
-           respose:function(respose){
-             console.log(respose)
+           success:function(response){
+             console.log(response)
            },
            error:function(err){
              console.log(err)

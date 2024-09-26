@@ -212,8 +212,8 @@
         </a>
         <form action="/api/courses/folders/delete/<%=content[i]._id%>" method="post"><button type="submit" role="button"
           class="btn btn-secondary btn-sm ">delete</button></form>
-        <form action="/api/courses/folders/moveup/<%=content[i]._id%>" method="post"><button type="submit" role="button"
-          class="btn btn-secondary btn-sm ">moveup</button></form>
+        <form action="/api/courses/folders/moveUp/<%=content[i]._id%>" method="post"><button type="submit" role="button"
+          class="btn btn-secondary btn-sm ">moveUp</button></form>
        </div>
        <%}else if(content[i].type=="Document" ){%>
         <div class="row">
@@ -222,8 +222,8 @@
          </a>
          <form action="/api/courses/document/delete/<%=content[i]._id%>" method="post"><button type="submit"
            name="delete" class="btn col-md-3 btn-secondary ">delete</button></form>
-         <form action="/api/courses/document/moveup/<%=content[i]._id%>" method="post"><button type="submit"
-           name="delete" class="btn col-md-3 btn-secondary ">moveup</button></form>
+         <form action="/api/courses/document/moveUp/<%=content[i]._id%>" method="post"><button type="submit"
+           name="delete" class="btn col-md-3 btn-secondary ">moveUp</button></form>
         </div>
         <%}%>
 
