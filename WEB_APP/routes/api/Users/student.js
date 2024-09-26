@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const Student = require("../../models/users/Student");
-const auth_student = require("../../middlewares/auth_student");
+const Student = require("../../../models/users/Student");
+const auth_student = require("../../../middlewares/auth_student");
 const jwt = require("jsonwebtoken");
 const path = require("path");
-const Enrollment = require("../../models/users/Student_enrollments");
+const Enrollment = require("../../../models/users/Student_enrollments");
 const config = require("config");
-const Course = require("../../models/course/Course");
+const Course = require("../../../models/course/Course");
 const bcrypt = require('bcrypt');
 const salt = 10
-const { getCourseStructureByPart } = require("../../Helper/course_partitioning");
-const { createPartZip } = require("../../Helper/zip");
+const { getCourseStructureByPart } = require("../../../Helper/course_partitioning");
+const { createPartZip } = require("../../../Helper/zip");
 
 router.post("/login", async (req, res) => {
     /* authorizes the teacher and sends auth token for easier and more secure management*/
@@ -136,3 +136,4 @@ router.get("/course/:id/:part", auth_student, async (req, res) => {
         res.status(500).json({err:true})
     }
 });
+module.exports = router

@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const Admin = require("../../models/users/Admin")
+const Admin = require("../../../models/users/Admin")
 const { generateOTP } = require("../../../Helper/OTP")
-const Course = require("../../../models/course")
+const Course = require("../../../models/course/Course")
 const classifyCourse = require("../../../Helper/course_partitioning")
 const auth_admin = require("../../../middlewares/auth_admin")
 router.post("/login", async (req, res) => {

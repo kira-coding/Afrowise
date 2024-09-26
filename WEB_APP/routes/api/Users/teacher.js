@@ -118,3 +118,5 @@ router.get("/courses", auth_teacher, async (req, res) => {
         res.status(500).json({ err: true });
     }
 });
+
+module.exports = router;
