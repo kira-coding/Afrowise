@@ -21,11 +21,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // routes middleware setups
 
-app.use("/", publicRoute);
-app.use("/api/", courseRoute);
-app.use("/user/", userRoute);
 
-// server
+app.use("/api/", courseRoute);
+
+app.use('*',  (req, res) => {
+  res.render("index");
+});
+
 
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
